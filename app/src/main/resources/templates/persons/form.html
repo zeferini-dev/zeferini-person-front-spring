@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${isNew ? 'Adicionar Pessoa' : 'Editar Pessoa'} + ' - Zeferini'">Formulário - Zeferini</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300..700">
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+</head>
+<body>
+    <div class="app-shell">
+        <!-- Navbar -->
+        <nav class="app-shell__navbar">
+            <div class="navbar-content">
+                <button class="navbar-burger" onclick="toggleDrawer()" title="Menu">
+                    <span class="material-symbols-rounded">menu</span>
+                </button>
+                <div class="navbar-title">Zeferini</div>
+                <div class="navbar-spacer"></div>
+            </div>
+        </nav>
+
+        <!-- Sidenav Drawer -->
+        <nav class="app-shell__drawer" id="drawer">
+            <div class="sidenav-header">
+                <h2>Zeferini</h2>
+                <button class="sidenav-close" onclick="closeDrawer()" title="Fechar menu">
+                    <span class="material-symbols-rounded">close</span>
+                </button>
+            </div>
+
+            <div class="sidenav-content">
+                <!-- Principal Section -->
+                <div class="sidenav-section">
+                    <h3 class="sidenav-section-title">Principal</h3>
+                    <a href="#" class="sidenav-item" th:href="@{/persons}" onclick="closeDrawer()">
+                        <span class="material-symbols-rounded">people</span>
+                        <span>Pessoas</span>
+                    </a>
+                </div>
+
+                <!-- APIs Section -->
+                <div class="sidenav-section">
+                    <h3 class="sidenav-section-title">APIs</h3>
+                    <a href="http://localhost:3000/api" target="_blank" rel="noopener noreferrer" class="sidenav-item">
+                        <span class="material-symbols-rounded">api</span>
+                        <span>Command (3000)</span>
+                        <span class="material-symbols-rounded external-icon">open_in_new</span>
+                    </a>
+                    <a href="http://localhost:3001/api" target="_blank" rel="noopener noreferrer" class="sidenav-item">
+                        <span class="material-symbols-rounded">api</span>
+                        <span>Query (3001)</span>
+                        <span class="material-symbols-rounded external-icon">open_in_new</span>
+                    </a>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Backdrop -->
+        <div class="app-shell__backdrop" id="backdrop" onclick="closeDrawer()"></div>
+
+        <!-- Main Content -->
+        <main class="app-shell__content">
+            <!-- Success Message -->
+            <div th:if="${success} or ${param.success}" class="snackbar success-message" id="successMessage">
+                Operação realizada com sucesso!
+            </div>
+            <!-- Error Message -->
+            <div th:if="${error} or ${param.error}" class="snackbar error-message" id="errorMessage">
+                Erro ao executar operação. Tente novamente.
+            </div>
+
+            <div class="container">
+                <div class="page-header">
+                    <a th:href="@{/persons}" class="btn-back">
+                        <span class="material-symbols-rounded">arrow_back</span>
+                        Voltar
+                    </a>
+                    <h1 th:text="${isNew ? 'Adicionar Pessoa' : 'Editar Pessoa'}">Formulário</h1>
+                </div>
+
+                <div class="card" style="max-width: 640px; margin: 24px auto;">
+                    <form th:method="POST" 
+                          th:action="@{${isNew ? '/persons' : '/persons/' + person.id}}"
+                          class="form">
+                        
+                        <div class="form-group">
+                            <label for="name">Nome *</label>
+                            <input type="text" id="name" name="name" 
+                                   th:value="${person.name}"
+                                   required 
+                                   placeholder="Digite o nome">
+                            <span class="field-error" id="nameError"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="email">Email *</label>
+                            <input type="email" id="email" name="email"
+                                   th:value="${person.email}"
+                                   required 
+                                   placeholder="Digite o email">
+                            <span class="field-error" id="emailError"></span>
+                        </div>
+
+                        <div class="form-actions">
+                            <a th:href="@{/persons}" class="btn btn-secondary">Cancelar</a>
+                            <button type="submit" class="btn btn-primary">
+                                <span class="material-symbols-rounded" th:text="${isNew ? 'add' : 'save'}"></span>
+                                <span th:text="${isNew ? 'Criar' : 'Salvar'}"></span>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script th:inline="javascript">
+        function toggleDrawer() {
+            const drawer = document.getElementById('drawer');
+            const backdrop = document.getElementById('backdrop');
+            const isOpen = drawer.classList.contains('app-shell__drawer--open');
+
+            if (isOpen) {
+                closeDrawer();
+            } else {
+                drawer.classList.add('app-shell__drawer--open');
+                backdrop.classList.add('visible');
+            }
+        }
+
+        function closeDrawer() {
+            const drawer = document.getElementById('drawer');
+            const backdrop = document.getElementById('backdrop');
+            drawer.classList.remove('app-shell__drawer--open');
+            backdrop.classList.remove('visible');
+        }
+
+        const form = document.querySelector('.form');
+        
+        form.addEventListener('submit', function(e) {
+            if (!validateForm()) {
+                e.preventDefault();
+            }
+        });
+
+        function validateForm() {
+            const name = document.getElementById('name').value.trim();
+            const email = document.getElementById('email').value.trim();
+            let isValid = true;
+
+            // Validate name
+            if (!name) {
+                showError('nameError', 'Nome é obrigatório');
+                isValid = false;
+            } else {
+                clearError('nameError');
+            }
+
+            // Validate email
+            if (!email) {
+                showError('emailError', 'Email é obrigatório');
+                isValid = false;
+            } else if (!isValidEmail(email)) {
+                showError('emailError', 'Email inválido');
+                isValid = false;
+            } else {
+                clearError('emailError');
+            }
+
+            return isValid;
+        }
+
+        function isValidEmail(email) {
+            return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+        }
+
+        function showError(elementId, message) {
+            const element = document.getElementById(elementId);
+            element.textContent = message;
+            element.style.display = 'block';
+        }
+
+        function clearError(elementId) {
+            const element = document.getElementById(elementId);
+            element.textContent = '';
+            element.style.display = 'none';
+        }
+
+        // Auto-hide messages after 3 seconds
+        setTimeout(function() {
+            const successMsg = document.getElementById('successMessage');
+            const errorMsg = document.getElementById('errorMessage');
+            if (successMsg) successMsg.style.display = 'none';
+            if (errorMsg) errorMsg.style.display = 'none';
+        }, 3000);
+    </script>
+</body>
+</html>

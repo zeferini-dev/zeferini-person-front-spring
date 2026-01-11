@@ -1,0 +1,26 @@
+spring:
+  application:
+    name: zeferini-thymeleaf
+  thymeleaf:
+    cache: true
+    prefix: classpath:/templates/
+    suffix: .html
+  webflux:
+    base-path: /
+
+server:
+  port: ${SERVER_PORT:8080}
+  servlet:
+    context-path: /
+
+# API Configuration
+api:
+  command:
+    url: ${API_COMMAND_URL:http://localhost:3000}
+  query:
+    url: ${API_QUERY_URL:http://localhost:3001}
+
+logging:
+  level:
+    root: INFO
+    com.zeferini: DEBUG
