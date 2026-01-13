@@ -13,12 +13,14 @@ server:
   servlet:
     context-path: /
 
-# API Configuration
+# API Configuration (via API Gateway)
 api:
+  gateway:
+    url: ${API_GATEWAY_URL:http://localhost:8084}
   command:
-    url: ${API_COMMAND_URL:http://localhost:3000}
+    url: ${API_COMMAND_URL:http://localhost:8084/api/persons}
   query:
-    url: ${API_QUERY_URL:http://localhost:3001}
+    url: ${API_QUERY_URL:http://localhost:8084/api/query}
 
 logging:
   level:

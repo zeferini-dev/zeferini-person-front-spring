@@ -11,8 +11,15 @@ import lombok.Setter;
 @Getter
 @Setter
 public class ApiConfig {
+    private Gateway gateway;
     private Command command;
     private Query query;
+
+    @Getter
+    @Setter
+    public static class Gateway {
+        private String url;
+    }
 
     @Getter
     @Setter

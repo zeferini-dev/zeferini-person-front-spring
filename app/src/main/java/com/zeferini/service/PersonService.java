@@ -23,6 +23,7 @@ public class PersonService {
     private final ObjectMapper objectMapper;
 
     public PersonService(ApiConfig apiConfig, ObjectMapper objectMapper) {
+        // Command URL já inclui /api/persons, Query URL inclui /api/query
         this.queryClient = WebClient.create(apiConfig.getQuery().getUrl());
         this.commandClient = WebClient.create(apiConfig.getCommand().getUrl());
         this.objectMapper = objectMapper;
@@ -30,7 +31,7 @@ public class PersonService {
 
     public List<Person> getAllPersons() {
         try {
-            log.info("Fetching all persons from Query API");
+            log.info("Fetching all persons from Query API via Gateway");
             String response = queryClient.get()
                     .uri("/persons")
                     .retrieve()
@@ -72,10 +73,10 @@ public class PersonService {
                 "email", person.getEmail()
             );
             
-            log.info("Creating person with data: {}", requestBody);
+            log.info("Creating person via Gateway with data: {}", requestBody);
             
             return commandClient.post()
-                    .uri("/persons")
+                    .uri("")  // URL já inclui /api/persons
                     .contentType(MediaType.APPLICATION_JSON)
                     .bodyValue(requestBody)
                     .retrieve()
@@ -95,10 +96,10 @@ public class PersonService {
                 "email", person.getEmail()
             );
             
-            log.info("Updating person {} with data: {}", id, requestBody);
+            log.info("Updating person {} via Gateway with data: {}", id, requestBody);
             
             return commandClient.patch()
-                    .uri("/persons/{id}", id)
+                    .uri("/{id}", id)  // URL já inclui /api/persons
                     .contentType(MediaType.APPLICATION_JSON)
                     .bodyValue(requestBody)
                     .retrieve()
@@ -113,7 +114,7 @@ public class PersonService {
     public void deletePerson(String id) {
         try {
             commandClient.delete()
-                    .uri("/persons/{id}", id)
+                    .uri("/{id}", id)  // URL já inclui /api/persons
                     .retrieve()
                     .toBodilessEntity()
                     .block();
