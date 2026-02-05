@@ -55,8 +55,14 @@ bin/
 /nbdist/
 /.nb-gradle/
 
-# IDE - VSCode
-.vscode/*
+# Visual Studio Code settings
+.vscode/
+/.vscode/
+
+# Visual Studio settings
+.vs/
+/.vs/
+
 !.vscode/settings.json
 !.vscode/tasks.json
 !.vscode/launch.json
