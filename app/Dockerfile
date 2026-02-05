@@ -1,21 +1,24 @@
-# syntax=docker/dockerfile:1
-FROM maven:3.9.9-eclipse-temurin-21 AS builder
+FROM maven:3.9-eclipse-temurin-21 AS builder
 
 WORKDIR /app
+
+# Copiar settings.xml customizado com mirror alternativo
+COPY settings.xml /root/.m2/settings.xml
+
+# Aumentar timeout do Maven
+ENV MAVEN_OPTS="-Dorg.slf4j.simpleLogger.defaultLogLevel=WARN -Dmaven.wagon.http.connect.timeout=20000 -Dmaven.wagon.http.read.timeout=20000"
 
 # Copiar pom.xml primeiro para aproveitar cache de layers
 COPY pom.xml .
 
-# Baixar dependências (cacheado separadamente)
-RUN --mount=type=cache,target=/root/.m2/repository \
-    mvn dependency:go-offline -B
+# Baixar dependências com mirror alternativo
+RUN mvn dependency:go-offline -B
 
 # Copiar código fonte
 COPY src ./src
 
-# Compilar (usando cache do .m2)
-RUN --mount=type=cache,target=/root/.m2/repository \
-    mvn clean package -DskipTests
+# Compilar
+RUN mvn clean package -DskipTests
 
 FROM eclipse-temurin:21-jre-alpine
 
